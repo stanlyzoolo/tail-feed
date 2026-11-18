@@ -1,0 +1,4 @@
+# Claude Code lays out the API types when it loads the mod in an interactive session (not with -p)
+.claude-plugin/types/
+.DS_Store
+node_modules/

@@ -1,0 +1,12 @@
+{
+  "name": "tail-feed",
+  "description": "tail-feed, a Claude Code mod: a rail of the session's turns above the prompt input.",
+  "owner": { "name": "Vladimir Lepeshko" },
+  "plugins": [
+    {
+      "name": "tail-feed",
+      "source": "./",
+      "description": "A rail of the session's turns above the prompt input: one bar per prompt, a click or a command jumps to it."
+    }
+  ]
+}

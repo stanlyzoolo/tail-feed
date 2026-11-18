@@ -1,0 +1,12 @@
+{
+  "name": "tail-feed",
+  "version": "0.1.3",
+  "description": "A rail of the session's turns above the prompt input: one bar per prompt, marked by what happened in its turn; the card shows the prompt you are reading and hover shows another bar's; a click or a command scrolls the transcript to the prompt and marks it.",
+  "author": { "name": "Vladimir Lepeshko" },
+  "homepage": "https://github.com/stanlyzoolo/tail-feed",
+  "repository": "https://github.com/stanlyzoolo/tail-feed",
+  "license": "MIT",
+  "keywords": ["mod", "ui", "transcript", "navigation", "terminal"],
+  "engines": { "claude-code": ">=2.1.325" },
+  "types": "./types/index.d.ts"
+}
