@@ -1,6 +1,6 @@
 {
   "name": "tail-feed",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "A rail of the session's turns above the prompt input: one bar per prompt, marked by what happened in its turn; the card shows the prompt you are reading and hover shows another bar's; a click or a command scrolls the transcript to the prompt and marks it.",
   "author": { "name": "Vladimir Lepeshko" },
   "homepage": "https://github.com/stanlyzoolo/tail-feed",

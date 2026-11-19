@@ -339,8 +339,8 @@ test('the header — the first line of the rail across the full width of the str
   const [button, title] = (header?.children ?? []) as Drawn[]
   const parts = (title?.children ?? []) as Drawn[]
 
-  // The button (3) + ` Tail · #5/5` (12) + ` ─…─`: the line is 80 − 15 = 65 cells with the space.
-  expect(textOf(header)).toBe(`[-] Tail · #5/5 ${'─'.repeat(64)}`)
+  // The button (3) + ` Feed · #5/5` (12) + ` ─…─`: the line is 80 − 15 = 65 cells with the space.
+  expect(textOf(header)).toBe(`[-] Feed · #5/5 ${'─'.repeat(64)}`)
   expect(textWidth(textOf(header))).toBe(BAND_PROPS.bodyColumns)
   // The line is the button and a `Text` with the parts in a row: does not fit — cut from the end, not wrapped onto a
   // fifth row of the rail.
@@ -350,8 +350,10 @@ test('the header — the first line of the rail across the full width of the str
   expect(title?.type).toBe('Text')
   expect(title?.props?.wrap).toBe('truncate-end')
   expect(parts.map(textOf)).toEqual(headerParts(5, 4, BAND_PROPS.bodyColumns).map((part) => part.text))
-  expect(parts.map((part) => part.props?.color)).toEqual([undefined, BAR_COLORS.current, BAR_COLORS.line])
-  expect(await ui.find({ type: 'Text', text: /^ Tail · $/ })).toBeDefined()
+  expect(parts.map((part) => part.props?.color)).toEqual([undefined, BAR_COLORS.title, undefined, BAR_COLORS.current, BAR_COLORS.line])
+  expect(parts.map((part) => part.props?.weight)).toEqual([undefined, 'bold', undefined, undefined, undefined])
+  // The title word is a `Text` of its own: bold, in Claude's peach.
+  expect(await ui.find({ type: 'Text', text: /^Feed$/ })).toMatchObject({ props: { color: BAR_COLORS.title, weight: 'bold' } })
 
   // The fold button is plain, the label `[-]` in the colour of the header lines.
   const fold = await foldOf(ui)
@@ -372,7 +374,7 @@ test('#n/N of the header follows the reading bar: without a jump the newest, aft
     const tree = await ui.drawn()
     const header = textOf(headerOf(tree))
 
-    expect(header.startsWith(`[-] Tail · ${place} ─`)).toBe(true)
+    expect(header.startsWith(`[-] Feed · ${place} ─`)).toBe(true)
     expect(textWidth(header)).toBe(BAND_PROPS.bodyColumns)
     // A string `text` matches as a substring: the #n/N part is matched whole, not the outer `Text` of the header.
     expect(await ui.find({ type: 'Text', text: new RegExp(`^${place}$`) })).toMatchObject({ props: { color: BAR_COLORS.current } })
@@ -762,7 +764,7 @@ test('a rail written by v1 (the rail-2 shape tag) is read without a reset: the n
   // The strip: the header, the pointers and the card follow current of the v1 rail.
   const before = await $.ui.mount({ ...band(), surface: 'terminal' })
   const tree = await before.drawn()
-  expect(textOf(headerOf(tree))).toBe(`[-] Tail · #2/3 ${'─'.repeat(64)}`)
+  expect(textOf(headerOf(tree))).toBe(`[-] Feed · #2/3 ${'─'.repeat(64)}`)
   expect(lineOf(tree)).toBe(' ██▸▃▃◂░░ ')
   expect(readOf(tree)).toBe(hoverKey('r2'))
   expect(linesOf(shownOf(tree))).toEqual(['#2 · calls: 1 · error', `[Work] ${v1Text}`])
@@ -886,8 +888,8 @@ test('the folded rail — one row under an empty one: [+], the title, the bars w
   const row = railOf(tree)
   const [button, head, line, tail] = (row?.children ?? []) as Drawn[]
 
-  // The button (3) + ` Tail · #6/6 ` (13) + six bars with gaps (19): the line is 80 − 35 = 45 cells with the space.
-  expect(textOf(row)).toBe(`[+] Tail · #6/6  ▂▂ ▂▂ ▂▂ ▂▂ ▂▂▸▂▂◂ ${'─'.repeat(44)}`)
+  // The button (3) + ` Feed · #6/6 ` (13) + six bars with gaps (19): the line is 80 − 35 = 45 cells with the space.
+  expect(textOf(row)).toBe(`[+] Feed · #6/6  ▂▂ ▂▂ ▂▂ ▂▂ ▂▂▸▂▂◂ ${'─'.repeat(44)}`)
   expect(textWidth(textOf(row))).toBe(BAND_PROPS.bodyColumns)
   expect(row?.props?.flexDirection).toBe('row')
   expect(row?.props?.paddingTop).toBe(TOP_ROWS)

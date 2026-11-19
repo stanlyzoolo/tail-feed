@@ -797,12 +797,14 @@ export const KIND_COLORS: Readonly<Record<BarKind, Color>> = {
 /**
  * Rail colours besides the kind colour — the Nord palette: `flagged` — the bar
  * of a turn with an error or an interrupted one (red, instead of the kind
- * colour), `current` — "you are here": the reading bar (cyan), `line` — the header lines (grey).
+ * colour), `current` — "you are here": the reading bar (cyan), `line` — the header lines (grey);
+ * and `title` — the word `Feed` of the header, in Claude's brand colour (peach), not Nord.
  */
-export const BAR_COLORS: Readonly<{ flagged: Color; current: Color; line: Color }> = {
+export const BAR_COLORS: Readonly<{ flagged: Color; current: Color; line: Color; title: Color }> = {
   flagged: '#bf616a',
   current: '#88c0d0',
   line: '#616e88',
+  title: '#d97757',
 }
 
 /** The turn has an error or is interrupted: the bar takes the error colour, the kind does not change. */
@@ -914,8 +916,11 @@ export function fitBars(count: number, reading: number, columns: number, older: 
   return { from: 0, to: 0 }
 }
 
-/** A segment of a rail row: text and colour; without a colour — in the terminal's text colour. */
-export type Part = { text: string; color?: Color }
+/**
+ * A segment of a rail row: text, colour and weight; without a colour — in the
+ * terminal's text colour, without a weight — regular.
+ */
+export type Part = { text: string; color?: Color; weight?: 'bold' }
 
 /**
  * Gap cells of a bar line of `items` items (`barLine`): a cell before each
@@ -994,24 +999,33 @@ function partsWidth(parts: readonly Part[]): number {
   return parts.reduce((sum, part) => sum + textWidth(part.text), 0)
 }
 
+// The word of the header label.
+const TITLE = 'Feed'
+
 /**
- * Header label after the fold button — ` Tail · #n/N`, no wider than `cells`
- * cells: the space and `Tail · ` in the text colour, the place of the reading
- * bar `#n/N` (`n` — `reading + 1`, `N` — the bars of the rail, `older` turns
- * do not count) — `BAR_COLORS.current`. Does not fit in full — `#n/N` goes,
- * ` Tail` is cut from the end (with an ellipsis). The reading bar is not in the rail — no `#n/N` either.
+ * Header label after the fold button — ` Feed · #n/N`, no wider than `cells`
+ * cells: the space, the word `Feed` in bold in `BAR_COLORS.title`, ` · ` in the
+ * text colour, the place of the reading bar `#n/N` (`n` — `reading + 1`, `N` —
+ * the bars of the rail, `older` turns do not count) — `BAR_COLORS.current`.
+ * Does not fit in full — `#n/N` goes, ` Feed` is cut from the end (with an
+ * ellipsis, the cut word keeps its colour and weight). The reading bar is not
+ * in the rail — no `#n/N` either.
  */
 function titleParts(count: number, reading: number, cells: number): Part[] {
-  const name = ' Tail · '
+  const name: Part = { text: TITLE, color: BAR_COLORS.title, weight: 'bold' }
   const place = reading >= 0 && reading < count ? placeLabel(reading, count) : null
 
-  if (place !== null && textWidth(name) + textWidth(place) <= cells) {
-    return [{ text: name }, { text: place, color: BAR_COLORS.current }]
+  if (place !== null && textWidth(` ${TITLE} · `) + textWidth(place) <= cells) {
+    return [{ text: ' ' }, name, { text: ' · ' }, { text: place, color: BAR_COLORS.current }]
   }
 
-  const text = clip(' Tail', cells)
+  const text = clip(` ${TITLE}`, cells)
 
-  return text === '' ? [] : [{ text }]
+  if (text === '') {
+    return []
+  }
+
+  return text.startsWith(' ') ? [{ text: ' ' }, { ...name, text: text.slice(1) }] : [{ ...name, text }]
 }
 
 /** Line to the edge: a space and `cells − 1` cells of line in the colour `BAR_COLORS.line`; `cells` < 1 — nothing. */
@@ -1022,7 +1036,7 @@ function ruleParts(cells: number): Part[] {
 /**
  * Header of an unfolded rail of `count` bars with the reading bar `reading`
  * (`readingIndex`) — the segments after the fold button (`foldLabel`), exactly
- * `columns − FOLD_WIDTH` cells wide in total: ` Tail · #n/N ─────` (the label
+ * `columns − FOLD_WIDTH` cells wide in total: ` Feed · #n/N ─────` (the label
  * `titleParts`, then the line to the edge). Narrow — the line gets shorter first,
  * then the label. There are no empty segments: at `columns ≤ FOLD_WIDTH` — none at all.
  */
@@ -1044,7 +1058,7 @@ export type FoldedLine = { head: Part[]; line: BarLine | null; tail: Part[] }
 
 /**
  * The row of a folded rail of `count` bars with the reading bar `reading`, exactly
- * `columns − FOLD_WIDTH` cells wide after the button: ` Tail · #n/N  ‹N ▂▂ ▂▂▸▂▂◂ ──`.
+ * `columns − FOLD_WIDTH` cells wide after the button: ` Feed · #n/N  ‹N ▂▂ ▂▂▸▂▂◂ ──`.
  * The bar window (`fitBars`) — by the room between the label with the space and
  * the line; two cells are left for the line (a space and at least one line
  * cell). `older` — turns older than the first bar, in the left counter.

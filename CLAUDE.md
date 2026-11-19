@@ -18,24 +18,24 @@ Each layer depends only on the layers above it in the list.
    turns to rows and rewind (`bindTurns`, `markSummary`, `markBars`, `rewound`), the look of a bar (`GLYPHS`,
    `BAR_WIDTH`, `KIND_NAMES`, `KIND_COLORS`, `BAR_COLORS`, `isFlagged`, `barColor`), the bar line and the header
    (`MAX_BARS`, `beforeLabel`, `afterLabel`, `fitBars`, `barLine`, `barGaps`, `GAP`, `POINTERS`, `headerParts`; a
-   segment with a colour — `Part`), folding (`FOLD_LABELS`, `FOLD_WIDTH`, `foldLabel`, `foldedLine`, `foldReply`,
+   segment with a colour and a weight — `Part`), folding (`FOLD_LABELS`, `FOLD_WIDTH`, `foldLabel`, `foldedLine`, `foldReply`,
    `foldNote`), the card (`barText`, `BAR_TEXT_MAX`, `CARD_ROWS`, `TOP_ROWS`, `cardLines`, `coverLines`), width in
    cells (`textWidth` — a copy from image-rail, not a dependency, with `Emoji_Presentation` on top of it), commands,
    the jump and the mark (`COMMAND_FORMS`, `COMMAND_HINT`, `parseCommand`, `findBar`, `readingIndex`, `stepTarget`,
    `commandArgs`, `aimCommand`, `jumpArgs`, `jumpedTo`, `MARK`, `markParts`, `jumpReply`, `replyOf`, `jumpNote`,
    `errorText`). The bar line — its items and the place of the reading bar — is known only to `barLine`: `fitBars`
-   measures the window by it, and `railRow` draws it. The label ` Tail · #n/N` of the header and of the folded row is
+   measures the window by it, and `railRow` draws it. The label ` Feed · #n/N` of the header and of the folded row is
    built by one function (`titleParts`), the place of `#n/N` in the header and in the mark — also by one
    (`placeLabel`). The colours of the header segments, of the gap cells and of the kind name (`CardLines.kind`,
    `MarkParts.kind`) are decided by `lib.ts`.
 2. **`hooks/rail.tsx`** — `railRow`: above the rail in both views — an empty row (`TOP_ROWS`, the `paddingTop`
    padding, not a tree node). The unfolded rail is five rows whatever is hovered: the empty one, the header (the fold
-   button `foldButton` with the key `FOLD_KEY` and `headerParts`: `[-] Tail · #n/N ─────` across the full width, the
+   button `foldButton` with the key `FOLD_KEY` and `headerParts`: `[-] Feed · #n/N ─────` across the full width, the
    label as one `Text` with `wrap="truncate-end"`), the bar line (`barLine`: `‹N`, the bars of the window, `N›`;
    before each item and after the last one — a gap cell, at the reading bar they hold the pointers `▸██◂`) and
    `CARD_ROWS` card rows (`cardRows`): first — the visible card of the reading bar, after it the hidden cards of the
    other visible bars, padded with spaces up to its lines (`coverLines`). The folded rail is one row under the empty
-   one (`foldedLine`): `[+] Tail · #n/N  ‹N ▂▂▸▂▂◂ ───`, without cards. It puts segments into `Text` (`partOf`) and
+   one (`foldedLine`): `[+] Feed · #n/N  ‹N ▂▂▸▂▂◂ ───`, without cards. It puts segments into `Text` (`partOf`) and
    picks no colours itself. `markLine` — the mark line `▸ #n/N · Kind` above the prompt of the last jump in the feed
    (`markParts`); `stacked` — the hook's line above whatever is lower in the chain. Keys and hover groups — `barKey`,
    `hoverKey`, `scopeOf`. It receives the rail, whether it is folded, and the table of terminal elements, and knows
@@ -144,15 +144,17 @@ Data flow:
   (`$.state.get`, `$.state.set`; it reads and writes only `tail-feed.rail` and `tail-feed.folded`).
 - The look of the rail was chosen by the user (the brainstorm and the UX v1.1 plan): `GLYPHS` — variant B "Height"
   (`▂ ▃ ▅ ▆ █ ░`), a bar is the kind's glyph `BAR_WIDTH = 2` times; `KIND_COLORS` — each kind has its own colour;
-  `BAR_COLORS` — `flagged` (an error or an interruption, instead of the kind's colour), `current` and `line` (the
-  header lines). The palette is Nord in hex and does not depend on the Claude Code theme. The light blue
+  `BAR_COLORS` — `flagged` (an error or an interruption, instead of the kind's colour), `current`, `line` (the
+  header lines) and `title` (the word `Feed` of the header and of the folded row, bold — `Part.weight` — in Claude's
+  brand peach `#d97757`, the only colour outside Nord; chosen by the user after 0.1.3, the word was `Tail` before).
+  The palette is Nord in hex and does not depend on the Claude Code theme. The light blue
   `BAR_COLORS.current` means only "you are here": the pointers of the reading bar, the `#n/N` of the header, the mark
   in the feed; the reading bar itself is in the kind's colour. `KIND_NAMES` — the kind names (nouns): the card puts
   them before the prompt text (`[Edit] …`), the mark — after the number (`▸ #4/6 · Edit`), both in the kind's colour,
   also for a flagged turn. All of them change together with the tree tests in `rail.test.tsx`, `rows.test.tsx` (the
   mark) and `lib-layout.test.ts`.
 - Folding was chosen by the user (the brainstorm after UX v1.1): the `[-]`/`[+]` button (`FOLD_LABELS`, not `▾`/`▸`)
-  at the start of the header in the colour of the lines; `#n/N` — right after `Tail · `, there is no separate bar
+  at the start of the header in the colour of the lines; `#n/N` — right after `Feed · `, there is no separate bar
   count in the header; the folded rail is one row with bars that can be clicked, without a card; the state is in the
   session (`$.state`), without `$.store`; without a mouse — `/tail-feed toggle` and `/tail-feed-toggle`, the strip
   has no key of its own. After the live check of 0.1.2 — an empty row above the header in both views (`TOP_ROWS`) and

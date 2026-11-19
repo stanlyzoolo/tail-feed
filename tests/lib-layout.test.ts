@@ -190,8 +190,8 @@ describe('barColor', () => {
     expect(barColor(summary({ interrupted: true }))).toBe(BAR_COLORS.flagged)
   })
 
-  test('the rail colours — the Nord palette: error, "you are here", lines', () => {
-    expect(BAR_COLORS).toEqual({ flagged: '#bf616a', current: '#88c0d0', line: '#616e88' })
+  test('the rail colours — the Nord palette: error, "you are here", lines; the title — Claude peach', () => {
+    expect(BAR_COLORS).toEqual({ flagged: '#bf616a', current: '#88c0d0', line: '#616e88', title: '#d97757' })
   })
 })
 
@@ -243,7 +243,7 @@ describe('markParts', () => {
     expect(textWidth(MARK)).toBe(1)
 
     for (const [i, item] of bars.entries()) {
-      const place = headerParts(bars.length, i, 40)[1]?.text
+      const place = headerParts(bars.length, i, 40)[3]?.text
 
       expect(place).toBe(`#${i + 1}/${bars.length}`)
       expect(markParts({ ...rail, current: item.id })?.label).toBe(`${MARK} ${place} · `)
@@ -466,25 +466,28 @@ describe('fold button', () => {
 
 describe('headerParts', () => {
   const line = BAR_COLORS.line
+  const title = { text: 'Feed', color: BAR_COLORS.title, weight: 'bold' }
   /** The header line as text after the fold button, as on the screen. */
   const header = (count: number, reading: number, columns: number) =>
     headerParts(count, reading, columns)
       .map((part) => part.text)
       .join('')
 
-  test('the full line after the button: the title Tail · in the text colour, #n/N in blue, a line to the edge', () => {
-    // The button (3) + ` Tail · ` (8) + `#6/6` (4) + ` ─…─`: the line is 40 − 15 = 25 cells with the space.
+  test('the full line after the button: the bold peach title Feed, · in the text colour, #n/N in blue, a line to the edge', () => {
+    // The button (3) + ` Feed · ` (8) + `#6/6` (4) + ` ─…─`: the line is 40 − 15 = 25 cells with the space.
     expect(headerParts(6, 5, 40)).toEqual([
-      { text: ' Tail · ' },
+      { text: ' ' },
+      title,
+      { text: ' · ' },
       { text: '#6/6', color: BAR_COLORS.current },
       { text: ` ${'─'.repeat(24)}`, color: line },
     ])
-    expect(`${foldLabel(false)}${header(6, 5, 40)}`).toBe(`[-] Tail · #6/6 ${'─'.repeat(24)}`)
+    expect(`${foldLabel(false)}${header(6, 5, 40)}`).toBe(`[-] Feed · #6/6 ${'─'.repeat(24)}`)
   })
 
   test('#n/N by the reading bar: no jump — the newest, after a jump — the jump bar, no jump bar — the newest', () => {
     const bars = [bar('a', 'one'), bar('b', 'two'), bar('c', 'three')]
-    const place = (current: string | null) => headerParts(bars.length, readingIndex(bars, current), 40)[1]?.text
+    const place = (current: string | null) => headerParts(bars.length, readingIndex(bars, current), 40)[3]?.text
 
     expect(place(null)).toBe('#3/3')
     expect(place('a')).toBe('#1/3')
@@ -493,30 +496,32 @@ describe('headerParts', () => {
   })
 
   test('N and n are bar counts: two-digit and three-digit', () => {
-    expect(header(150, 41, 40)).toBe(` Tail · #42/150 ${'─'.repeat(21)}`)
+    expect(header(150, 41, 40)).toBe(` Feed · #42/150 ${'─'.repeat(21)}`)
   })
 
-  test('narrow: first the line gets shorter, then #n/N goes away, then Tail is clipped', () => {
+  test('narrow: first the line gets shorter, then #n/N goes away, then Feed is clipped', () => {
     // The title with #n/N is 12 cells after the button: at 15 columns there is no line.
-    expect(header(6, 5, 17)).toBe(' Tail · #6/6 ─')
-    expect(header(6, 5, 16)).toBe(' Tail · #6/6 ')
-    expect(header(6, 5, 15)).toBe(' Tail · #6/6')
-    expect(header(6, 5, 14)).toBe(` Tail ${'─'.repeat(5)}`)
-    expect(header(6, 5, 8)).toBe(' Tail')
-    expect(header(6, 5, 7)).toBe(' Ta…')
+    expect(header(6, 5, 17)).toBe(' Feed · #6/6 ─')
+    expect(header(6, 5, 16)).toBe(' Feed · #6/6 ')
+    expect(header(6, 5, 15)).toBe(' Feed · #6/6')
+    expect(header(6, 5, 14)).toBe(` Feed ${'─'.repeat(5)}`)
+    expect(header(6, 5, 8)).toBe(' Feed')
+    expect(header(6, 5, 7)).toBe(' Fe…')
     expect(header(6, 5, 4)).toBe('…')
     expect(headerParts(6, 5, 3)).toEqual([])
     expect(headerParts(6, 5, 0)).toEqual([])
   })
 
-  test('without #n/N the segments are the title in the text colour and the line', () => {
-    expect(headerParts(6, 5, 14)).toEqual([{ text: ' Tail' }, { text: ` ${'─'.repeat(5)}`, color: line }])
-    expect(headerParts(6, 5, 7)).toEqual([{ text: ' Ta…' }])
+  test('without #n/N the segments are the space, the bold peach title (clipped too) and the line', () => {
+    expect(headerParts(6, 5, 14)).toEqual([{ text: ' ' }, title, { text: ` ${'─'.repeat(5)}`, color: line }])
+    expect(headerParts(6, 5, 7)).toEqual([{ text: ' ' }, { ...title, text: 'Fe…' }])
+    expect(headerParts(6, 5, 5)).toEqual([{ text: ' ' }, { ...title, text: '…' }])
+    expect(headerParts(6, 5, 4)).toEqual([{ ...title, text: '…' }])
   })
 
   test('the reading bar is not in the rail — no #n/N either', () => {
-    expect(header(0, -1, 30)).toBe(` Tail ${'─'.repeat(21)}`)
-    expect(header(3, 3, 30)).toBe(` Tail ${'─'.repeat(21)}`)
+    expect(header(0, -1, 30)).toBe(` Feed ${'─'.repeat(21)}`)
+    expect(header(3, 3, 30)).toBe(` Feed ${'─'.repeat(21)}`)
   })
 
   test('widths 0…200: the sum of segment widths is columns without the button, no empty segments, #n/N only with the whole title', () => {
@@ -537,9 +542,13 @@ describe('headerParts', () => {
 
         expect(parts.reduce((sum, part) => sum + textWidth(part.text), 0)).toBe(Math.max(0, columns - FOLD_WIDTH))
         expect(parts.every((part) => part.text !== '')).toBe(true)
+        // The title word, whole or clipped, is the only segment that starts with neither a space nor `#`.
+        for (const part of parts.filter((part) => !part.text.startsWith(' ') && !part.text.startsWith('#'))) {
+          expect(part).toMatchObject({ color: BAR_COLORS.title, weight: 'bold' })
+        }
 
         if (text.includes('#')) {
-          expect(text.startsWith(` Tail · #${reading + 1}/${count}`)).toBe(true)
+          expect(text.startsWith(` Feed · #${reading + 1}/${count}`)).toBe(true)
           expect(parts.find((part) => part.text.startsWith('#'))?.color).toBe(BAR_COLORS.current)
         }
       }
@@ -558,13 +567,19 @@ describe('foldedLine', () => {
   }
 
   test('the title, a space, the bar line with pointers at the reading bar, a line to the edge', () => {
-    // The button (3) + ` Tail · #6/6 ` (13) + six bars with gaps (19): the line is 60 − 35 = 25 cells with the
+    // The button (3) + ` Feed · #6/6 ` (13) + six bars with gaps (19): the line is 60 − 35 = 25 cells with the
     // space.
-    expect(folded(6, 5, 60)).toBe(` Tail · #6/6  ▂▂ ▂▂ ▂▂ ▂▂ ▂▂▸▂▂◂ ${'─'.repeat(24)}`)
-    expect(folded(6, 2, 60)).toBe(` Tail · #3/6  ▂▂ ▂▂▸▂▂◂▂▂ ▂▂ ▂▂  ${'─'.repeat(24)}`)
+    expect(folded(6, 5, 60)).toBe(` Feed · #6/6  ▂▂ ▂▂ ▂▂ ▂▂ ▂▂▸▂▂◂ ${'─'.repeat(24)}`)
+    expect(folded(6, 2, 60)).toBe(` Feed · #3/6  ▂▂ ▂▂▸▂▂◂▂▂ ▂▂ ▂▂  ${'─'.repeat(24)}`)
 
     const { head, tail } = foldedLine(6, 5, 60, 0)
-    expect(head).toEqual([{ text: ' Tail · ' }, { text: '#6/6', color: BAR_COLORS.current }, { text: ' ' }])
+    expect(head).toEqual([
+      { text: ' ' },
+      { text: 'Feed', color: BAR_COLORS.title, weight: 'bold' },
+      { text: ' · ' },
+      { text: '#6/6', color: BAR_COLORS.current },
+      { text: ' ' },
+    ])
     expect(tail).toEqual([{ text: ` ${'─'.repeat(24)}`, color: line }])
   })
 
@@ -574,9 +589,9 @@ describe('foldedLine', () => {
     const window = fitBars(30, 29, 20, 2)
 
     expect(bars).toEqual(barLine(window, 30, 2, 29))
-    expect(folded(30, 29, 40, 2)).toBe(` Tail · #30/30  ‹27 ▂▂ ▂▂ ▂▂ ▂▂▸▂▂◂ ${'─'.repeat(1)}`)
+    expect(folded(30, 29, 40, 2)).toBe(` Feed · #30/30  ‹27 ▂▂ ▂▂ ▂▂ ▂▂▸▂▂◂ ${'─'.repeat(1)}`)
     // A jump to the first bar: the window starts at it, only older on the left.
-    expect(folded(30, 0, 40, 2)).toBe(` Tail · #1/30  ‹2▸▂▂◂▂▂ ▂▂ ▂▂ 26›  ${'─'.repeat(2)}`)
+    expect(folded(30, 0, 40, 2)).toBe(` Feed · #1/30  ‹2▸▂▂◂▂▂ ▂▂ ▂▂ 26›  ${'─'.repeat(2)}`)
   })
 
   test('not a single bar fits — the header of the unfolded rail, without the bar line', () => {
@@ -588,8 +603,8 @@ describe('foldedLine', () => {
 
     // 25 columns: the button (3), the title with a space (13), the reading bar with the counter ‹5 and gaps (7)
     // and the line (2).
-    expect(folded(6, 5, 24)).toBe(` Tail · #6/6 ${'─'.repeat(8)}`)
-    expect(folded(6, 5, 25)).toBe(' Tail · #6/6  ‹5▸▂▂◂ ─')
+    expect(folded(6, 5, 24)).toBe(` Feed · #6/6 ${'─'.repeat(8)}`)
+    expect(folded(6, 5, 25)).toBe(' Feed · #6/6  ‹5▸▂▂◂ ─')
   })
 
   test('widths 0…200: the line is exactly columns wide without the button, the reading bar is between the pointers, there is room for the line', () => {
@@ -615,7 +630,7 @@ describe('foldedLine', () => {
           expect(bars.items.filter((item) => 'index' in item).length).toBeLessThanOrEqual(MAX_BARS)
           expect(textsOf(bars.gaps)).toContain(POINTERS.left)
           expect(tail.length).toBe(1)
-          expect(text.startsWith(` Tail · #${reading + 1}/${count} `)).toBe(true)
+          expect(text.startsWith(` Feed · #${reading + 1}/${count} `)).toBe(true)
         }
       }
     }

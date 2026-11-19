@@ -56,7 +56,10 @@ export function hoverKey(id: string): string {
 /** The key of the rail's fold button (`[-]`, `[+]`): its address for `ui.press`. */
 export const FOLD_KEY = 'fold'
 
-/** A segment of a rail line (`headerParts`, `barLine`): a `Text` of its own colour; no colour — terminal text's. */
+/**
+ * A segment of a rail line (`headerParts`, `barLine`): a `Text` of its own colour and weight; no colour — terminal
+ * text's.
+ */
 function partOf(ui: TerminalElements, { text, ...style }: Part): RenderElement {
   const { Text } = ui
 
@@ -130,7 +133,7 @@ function foldButton(ui: TerminalElements, folded: boolean, onToggle: () => void)
 /**
  * The strip's rail. Above it are TOP_ROWS blank lines (`paddingTop`), in both
  * views. Unfolded (`folded` false): the header line — the `[-]` button
- * (`foldButton`) followed by `headerParts` (` Tail · #n/N ─────` to the edge,
+ * (`foldButton`) followed by `headerParts` (` Feed · #n/N ─────` to the edge,
  * as one `Text`: if it does not fit, it is truncated from the end, not
  * wrapped), under it the bar line (`barLine`: `‹N`, the bars of the `fitBars`
  * window, `N›`) and CARD_ROWS card lines (`cardRows`), which are always there

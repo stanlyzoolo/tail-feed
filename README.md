@@ -8,7 +8,7 @@ right end of the rail, and the bar's shape tells you what its turn did. The diff
 lines go by, while here every "line" is a way back: click a bar and the feed scrolls to that prompt.
 
 ```text
-$ tail -f session.log          [-] Tail · #7/7 ──────────────────────
+$ tail -f session.log          [-] Feed · #7/7 ──────────────────────
 …                               ▂▂ ██ ▆▆ ▃▃ ▅▅ ▂▂▸██◂
 12:04 edited 3 files            #7 · edits: 3 files
                                 [Edit] rename the mod and fix the tests
@@ -81,7 +81,7 @@ After a jump to the second prompt:
 
 ```text
                                               [-]
-[-] Tail · #2/7 ────────────────────────────
+[-] Feed · #2/7 ────────────────────────────
  ▂▂▸██◂▆▆ ▃▃ ▅▅ ▂▂ ░░
 #2 · edits: 2 files · error
 [Edit] fix the tests and run the checks
@@ -91,9 +91,10 @@ The `[-]` on the empty row is Claude Code's own, not the rail's (see "Folding").
 
 ### Header
 
-`[-] Tail · #n/N ─────` spans the whole strip. `#n/N` is the place of the reading bar: `n` is the same number as `#n`
+`[-] Feed · #n/N ─────` spans the whole strip. `#n/N` is the place of the reading bar: `n` is the same number as `#n`
 in the card and in `/tail-feed <n>`, `N` is the number of bars (older turns without a bar are not counted, see
-"Counters"). In a narrow strip the line gets shorter first, then `#n/N` is dropped, then `Tail` is cut; `[-]` stays.
+"Counters"). `Feed` is bold, in Claude's peach. In a narrow strip the line gets shorter first, then `#n/N` is
+dropped, then `Feed` is cut; `[-]` stays.
 
 ### Bar kinds
 
@@ -121,14 +122,15 @@ not a height.
   is `Agent` is `▆▆`, however many files the subagent edited.
 - Errors and interruptions do not change the kind, only the colour (see below).
 
-Colours are the Nord palette, the same in every theme:
+Colours are the Nord palette (the title `Feed` aside), the same in every theme:
 
 - a turn with an error or an interruption is red `#bf616a` instead of its kind's colour, the shape stays. An error is a
   tool call that failed (including a command with a non-zero exit code, failing tests, a denied permission), an API
   error or a model refusal; an interruption is Esc;
 - cyan `#88c0d0` means "you are here": the pointers `▸██◂` on both sides of the reading bar, `#n/N` in the header and
   the mark in the transcript. The reading bar itself keeps its kind's colour;
-- the header lines and the `[-]`/`[+]` button are grey `#616e88`.
+- the header lines and the `[-]`/`[+]` button are grey `#616e88`;
+- the title `Feed` is bold, in Claude's brand peach `#d97757`.
 
 The reading bar is the bar of the last jump (click or command). Before any jump, and after you send a new prompt, the
 reading bar is the newest one.
@@ -184,11 +186,11 @@ bars, without the card:
 
 ```text
                                                   [-]
-[+] Tail · #2/7  ▂▂▸██◂▆▆ ▃▃ ▅▅ ▂▂ ░░ ──────────
+[+] Feed · #2/7  ▂▂▸██◂▆▆ ▃▃ ▅▅ ▂▂ ░░ ──────────
 ```
 
 A click on a bar of the folded row jumps the same way; hover shows no card. When no bar fits, the row is
-`[+] Tail · #n/N ───`, so the button that unfolds it is always there. `/tail-feed toggle` and `/tail-feed-toggle`
+`[+] Feed · #n/N ───`, so the button that unfolds it is always there. `/tail-feed toggle` and `/tail-feed-toggle`
 do the same as the button. The folded state belongs to the session: a new session, `/clear` and `/resume` start
 unfolded.
 
