@@ -4,8 +4,8 @@ A Claude Code 2.1.325+ plugin mod: a rail above the prompt input — a header, o
 the reading bar; the bar's shape and colour tell what happened in the turn, hover shows the card of the bar under the
 mouse, a click or a command scrolls the feed to the prompt, and a jump mark appears above it in the feed; the
 `[-]`/`[+]` button at the start of the header folds the rail to one row and unfolds it. What the user sees —
-`README.md` (in English). The v1 and UX v1.1 plans with the logs of the experiments (E1–E8) and of the live runs are
-not part of the published repository: everything from them that is needed to work with the code is written in this
+`README.md` (short) and `docs/reference.md` (every detail and limitation), both in English. The v1 and UX v1.1 plans
+with the logs of the experiments (E1–E8) and of the live runs are not part of the published repository: everything from them that is needed to work with the code is written in this
 file ("v1 plan", "UX v1.1 plan", "E1–E8" below are names of stages, not links to files).
 
 ## Layers
@@ -85,7 +85,7 @@ Data flow:
   them. Otherwise two identical prompts delivered into one turn would remove each other in a loop: write → redraw →
   replacement → write. Removing a row from the cache — only through `dropRow`; checking that a row is gone for good
   (removed or from `retired`) — only through `isGone`. A removed row gets no bar until the mod is reloaded (in v1 the
-  next redraw brought it back) — a limitation in the README.
+  next redraw brought it back) — a limitation in `docs/reference.md`.
 - The strip hook only reads state and schedules nothing. There is no redraw loop: a write of the rail redraws both
   hooks, and the redraw of a known or removed row schedules no write.
 - The row hook takes only rows of the `terminal` surface and draws the mark only there: rows of other surfaces would
@@ -161,7 +161,7 @@ Data flow:
   the pointers `▸██◂` (`POINTERS`) instead of the corners `▕██▏`: the corners read poorly, and `▸` repeats the jump
   mark in the feed.
 - Everything in the repository is in English: the text the user sees (the summary, the replies and descriptions of
-  the commands, the debug log, `description` in `.claude-plugin/plugin.json`, `README.md`), code comments, tests and
+  the commands, the debug log, `description` in `.claude-plugin/plugin.json`, `README.md`, `docs/reference.md`), code comments, tests and
   `CLAUDE.md`. There is no Cyrillic anywhere in the repository.
 
 ## Non-obvious facts
@@ -243,7 +243,7 @@ Feed rows (E1, E5, E7):
   `[Pasted text]`), and `[Image #n]` stays as is. The engine's prompt input counts line breaks for the same paste —
   one less (the UX v1.1 live run: `[Pasted text #1 +5 lines]` for 6 lines, prismantis in the feed — `6 lines`).
   `find` searches `Bar.text`, so `find pasted` finds prompts with a paste — accepted deliberately (the `findBar`
-  test, README). For the search the token is the single word `pasted` (`findBar`, `PASTED_TOKEN`): `find text` and
+  test, `docs/reference.md`). For the search the token is the single word `pasted` (`findBar`, `PASTED_TOKEN`): `find text` and
   `find lines` do not match the token.
 - Binding is by `textKey` from the end: in a group of identical texts the newest turns take the newest rows. `isLive`
   rows are newer than the rest; the order of the rest is not the order of appearance (chunks from the bottom up) but
@@ -345,8 +345,8 @@ The jump, the mark and the strip (E2–E4, E8, the UX v1.1 live run):
   has at least one row (`position: "absolute"`, `top: 0`, `right: 1`, in five cells beyond `bodyColumns`, after the
   mods' rows). Neither a hook nor a setting removes or covers it; only `ctrl+x ctrl+a` (`abovePrompt:toggle`) can be
   unbound, not the marker itself (Claude Code 2.1.326, by the engine code). So the rail's own folding is the
-  `[-]`/`[+]` button at the start of the header, and the engine's `[-]` stays on the right: the README says how they
-  differ. `top: 0` is the top row of the strip: with the empty row above the header (`TOP_ROWS`) it stands in that
+  `[-]`/`[+]` button at the start of the header, and the engine's `[-]` stays on the right: `docs/reference.md` says how
+  they differ. `top: 0` is the top row of the strip: with the empty row above the header (`TOP_ROWS`) it stands in that
   row, not in the header row (live, 2.1.327).
 - The strip puts one row per mod; the tail-feed hook does not see other mods' rows (the selector is by `plugin` by
   default), and keeps `next(e)` under its own row. prismantis draws no row of its own in the strip, but draws the
