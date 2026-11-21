@@ -3,7 +3,7 @@
 A Claude Code mod: a rail of the session's turns above the prompt input. One bar per prompt shows what its turn did,
 and a click takes you back to it.
 
-<!-- demo video: put the github.com/user-attachments URL on a line of its own here -->
+https://github.com/user-attachments/assets/a6381775-2b42-4796-b414-e13f0d6f26e6
 
 Like `tail -f` on a log, each prompt lands as one new bar at the right end of the rail, and a glance at its shape tells
 you what the turn did. Unlike `tail -f`, every "line" is a way back: click a bar and the transcript scrolls to that
